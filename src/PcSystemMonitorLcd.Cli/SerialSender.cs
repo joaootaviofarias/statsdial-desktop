@@ -1,6 +1,6 @@
-namespace PcSystemMonitorLcd.Cli;
-
 using System.IO.Ports;
+
+namespace PcSystemMonitorLcd.Cli;
 
 public sealed class SerialSender : IDisposable
 {
@@ -8,24 +8,24 @@ public sealed class SerialSender : IDisposable
 
     public SerialSender(AppConfig config)
     {
-        
+
         var autoPort = DeterminePort(config);
-        
+
         _port = new SerialPort(autoPort, config.BaudRate)
         {
-            NewLine      = "\n",
-            Encoding     = System.Text.Encoding.ASCII,
+            NewLine = "\n",
+            Encoding = System.Text.Encoding.ASCII,
             WriteTimeout = 1000,
-            ReadTimeout  = 1000,
-            Handshake    = Handshake.None,
-            RtsEnable    = false,
-            DtrEnable    = true
+            ReadTimeout = 1000,
+            Handshake = Handshake.None,
+            RtsEnable = false,
+            DtrEnable = true
         };
     }
 
     public void EnsureOpen()
     {
-        
+
         try
         {
             if (!_port.IsOpen)
@@ -36,10 +36,10 @@ public sealed class SerialSender : IDisposable
             Console.WriteLine($"[Serial] Hardware disconnected ({ex.GetType().Name}). Forcing reconnect...");
             ResetConnection();
 
-            throw; 
+            throw;
         }
     }
-    
+
     public void SendLine(string line)
     {
         EnsureOpen();
@@ -51,36 +51,36 @@ public sealed class SerialSender : IDisposable
         if (_port.IsOpen) _port.Close();
         _port.Dispose();
     }
-    
+
     public void ResetConnection()
     {
         Console.WriteLine("[Serial] Forcefully resetting dead connection...");
         try { if (_port.IsOpen) _port.Close(); } catch { }
         try { _port.Dispose(); } catch { }
     }
-    
+
     private string DeterminePort(AppConfig config)
     {
         if (config.SerialPort.StartsWith("/dev/serial/by-id/"))
         {
             return config.SerialPort;
         }
-        
+
         try
         {
             string path = "/dev/serial/by-id/";
             if (Directory.Exists(path))
             {
                 var devices = Directory.GetFiles(path, "usb-*");
-            
+
                 if (devices.Length > 0)
                 {
-                    return devices[0]; 
+                    return devices[0];
                 }
             }
         }
         catch { }
-        
+
         return config.SerialPort;
     }
 }

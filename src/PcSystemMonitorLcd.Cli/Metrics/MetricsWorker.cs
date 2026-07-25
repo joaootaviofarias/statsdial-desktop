@@ -1,18 +1,19 @@
-namespace PcSystemMonitorLcd.Cli;
+namespace PcSystemMonitorLcd.Cli.Metrics;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using PcSystemMonitorLcd.Cli;
 
 public class MetricsWorker : BackgroundService
 {
-    private readonly AppConfig           _config;
+    private readonly AppConfig _config;
     private readonly SystemMetricsReader _reader;
     private readonly ILogger<MetricsWorker> _logger;
 
-    public MetricsWorker(AppConfig config, ILogger<MetricsWorker> logger)
+    public MetricsWorker(AppConfig config, SystemMetricsReader reader, ILogger<MetricsWorker> logger)
     {
         _config = config;
-        _reader = new SystemMetricsReader(config);
+        _reader = reader;
         _logger = logger;
     }
 
@@ -30,23 +31,23 @@ public class MetricsWorker : BackgroundService
         {
             try
             {
-                double cpu     = _reader.GetCpuPercent();
-                double ram     = _reader.GetRamPercent();
-                double gpu     = _reader.GetGpuPercent();
+                double cpu = _reader.GetCpuPercent();
+                double ram = _reader.GetRamPercent();
+                double gpu = _reader.GetGpuPercent();
                 double cpuTemp = _reader.GetCpuTempCelsius();
                 int hour = DateTime.Now.Hour;
-                int minute  = DateTime.Now.Minute;
-                int second  = DateTime.Now.Second;
-                
+                int minute = DateTime.Now.Minute;
+                int second = DateTime.Now.Second;
+
                 string payload = $"{cpu},{gpu},{ram},{cpuTemp},{hour},{minute},{second}";
 
                 sender.SendLine(payload);
-                _logger.LogInformation("Sent: {Payload}", payload);
+                _logger.LogDebug("Sent: {Payload}", payload);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Error in send cycle, will retry on next tick.");
-                
+
                 sender.ResetConnection();
             }
 

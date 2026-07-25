@@ -1,15 +1,15 @@
-namespace PcSystemMonitorLcd.Cli;
+namespace PcSystemMonitorLcd.Cli.Metrics.Linux;
 
 public class CpuSnapshot(long User, long Nice, long System, long Idle, long IoWait, long Irq, long SoftIrq)
 {
-    public long TotalIdle   => Idle + IoWait;
+    public long TotalIdle => Idle + IoWait;
     public long TotalActive => User + Nice + System + Irq + SoftIrq;
-    public long Total       => TotalActive + TotalIdle;
-    
+    public long Total => TotalActive + TotalIdle;
+
     public static double DeltaPercent(CpuSnapshot prev, CpuSnapshot curr)
     {
-        long deltaTotal  = curr.Total       - prev.Total;
-        long deltaIdle   = curr.TotalIdle   - prev.TotalIdle;
+        long deltaTotal = curr.Total - prev.Total;
+        long deltaIdle = curr.TotalIdle - prev.TotalIdle;
 
         if (deltaTotal <= 0) return 0.0;
         return (deltaTotal - deltaIdle) / (double)deltaTotal * 100.0;
