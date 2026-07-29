@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using PcSystemMonitorLcd.Cli;
 using PcSystemMonitorLcd.Cli.Hardware;
 using PcSystemMonitorLcd.Cli.Metrics;
 using PcSystemMonitorLcd.Cli.Metrics.Linux;
 using PcSystemMonitorLcd.Cli.Metrics.Windows;
+using Serilog;
 
 var config = new AppConfig
 {
@@ -13,6 +13,14 @@ var config = new AppConfig
     BaudRate = int.TryParse(Environment.GetEnvironmentVariable("BAUD_RATE"), out int b) ? b : 115200,
     IntervalMs = int.TryParse(Environment.GetEnvironmentVariable("INTERVAL_MS"), out int i) ? i : 1000,
 };
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File(
+        Path.Combine(AppContext.BaseDirectory, "logs", "service-.log"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14)
+    .CreateLogger();
 
 IHardwareInfoService hardwareInfoService = OperatingSystem.IsWindows()
     ? new WindowsHardwareInfoService()
@@ -34,6 +42,7 @@ else if (OperatingSystem.IsLinux())
 }
 
 builder
+    .UseSerilog()
     .ConfigureServices(services =>
     {
         services.AddSingleton(config);
@@ -55,14 +64,6 @@ builder
 
         services.AddSingleton<SystemMetricsReader>();
         services.AddHostedService<MetricsWorker>();
-    })
-    .ConfigureLogging(logging =>
-    {
-        logging.ClearProviders();
-        if (OperatingSystem.IsLinux())
-            logging.AddSystemdConsole();
-        else
-            logging.AddConsole();
     });
 
 await builder.Build().RunAsync();

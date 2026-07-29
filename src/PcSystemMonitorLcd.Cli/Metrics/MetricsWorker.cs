@@ -47,8 +47,6 @@ public class MetricsWorker : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Error in send cycle, will retry on next tick.");
-
-                sender.ResetConnection();
             }
 
             await Task.Delay(_config.IntervalMs, ct);
