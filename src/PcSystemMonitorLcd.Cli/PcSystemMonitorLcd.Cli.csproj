@@ -20,10 +20,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\RmSdkBridge\x64\$(Configuration)\RmSdkBridge.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>RmSdkBridge.dll</Link>
-		</None>
+	  <ProjectReference Include="..\PcSystemMonitorLcd\PcSystemMonitorLcd.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 </Project>
