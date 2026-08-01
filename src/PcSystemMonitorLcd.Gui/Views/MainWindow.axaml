@@ -14,145 +14,166 @@
         MinWidth="380" MinHeight="560"
         Background="{StaticResource AppBackgroundBrush}">
 
-   <Design.DataContext>
-        <vm:MainViewModel />
-    </Design.DataContext>
+	<Design.DataContext>
+		<vm:MainViewModel />
+	</Design.DataContext>
 
-    <ScrollViewer>
-        <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto">
+	<ScrollViewer>
+		<Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto">
 
-            <!-- Header -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,18">
-                <TextBlock Text="PC MONITOR" FontFamily="{StaticResource DisplayFont}"
+			<!-- Header -->
+			<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,18">
+				<TextBlock Text="PC MONITOR" FontFamily="{StaticResource DisplayFont}"
                            FontWeight="Bold" FontSize="22" LetterSpacing="2" />
-                <TextBlock Text="ESP32 DISPLAY" Classes="muted" VerticalAlignment="Center" Margin="4,6,0,0" />
-            </StackPanel>
+				<TextBlock Text="ESP32 DISPLAY" Classes="muted" VerticalAlignment="Center" Margin="4,6,0,0" />
+			</StackPanel>
 
-            <!-- System information -->
-            <Border Grid.Row="1" Classes="panel" Margin="0,0,0,16">
-                <StackPanel Spacing="16">
+			<!-- System information -->
+			<Border Grid.Row="1" Classes="panel" Margin="0,0,0,16">
+				<StackPanel Spacing="16">
 
-                    <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Grid.Column="0" Text="SYSTEM INFORMATION" Classes="section-title"
+					<Grid ColumnDefinitions="*,Auto">
+						<TextBlock Grid.Column="0" Text="SYSTEM INFORMATION" Classes="section-title"
                                    VerticalAlignment="Center" />
-                        <Border Grid.Column="1" Classes="badge badge-neutral">
-                            <TextBlock Text="{Binding Distro}" />
-                        </Border>
-                    </Grid>
+						<Border Grid.Column="1" Classes="badge badge-neutral">
+							<TextBlock Text="{Binding Distro}" />
+						</Border>
+					</Grid>
 
-                    <!-- CPU -->
-                    <StackPanel Spacing="6">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Grid.Column="0" Text="CPU" Classes="metric-label" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1" Classes="value">
-                                <Run Text="{Binding CpuUsagePercent, StringFormat={}{0:0}}" /><Run Text="%" />
-                            </TextBlock>
-                        </Grid>
-                        <ctrl:Sparkline Height="40" Values="{Binding CpuHistory}"
+					<!-- CPU -->
+					<StackPanel Spacing="6">
+						<Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+							<TextBlock Grid.Column="0" Text="CPU" Classes="metric-label" VerticalAlignment="Center" />
+							<Border Grid.Column="1" Classes="badge badge-neutral"
+                                    HorizontalAlignment="Left" Margin="10,0,0,0">
+								<TextBlock Text="{Binding CpuName}" />
+							</Border>
+							<TextBlock Grid.Column="2" Classes="value">
+								<Run Text="{Binding CpuUsagePercent, StringFormat={}{0:0}}" />
+								<Run Text="%  " />
+								<Run Text="{Binding CpuTempCelsius, StringFormat={}{0:0}}" />
+								<Run Text="°C" />
+							</TextBlock>
+						</Grid>
+						<ctrl:Sparkline Height="40" Values="{Binding CpuHistory}"
                                         Stroke="{StaticResource AppAccentBrush}" />
-                    </StackPanel>
+					</StackPanel>
 
-                    <!-- RAM -->
-                    <StackPanel Spacing="6">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Grid.Column="0" Text="RAM" Classes="metric-label" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1" Classes="value">
-                                <Run Text="{Binding RamUsedGb, StringFormat={}{0:0.0}}" /><Run Text=" / " />
-                                <Run Text="{Binding RamTotalGb, StringFormat={}{0:0.0}}" /><Run Text=" GB" />
-                            </TextBlock>
-                        </Grid>
-                        <ctrl:Sparkline Height="40" Values="{Binding RamHistory}"
+					<!-- RAM -->
+					<StackPanel Spacing="6">
+						<Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+							<TextBlock Grid.Column="0" Text="RAM" Classes="metric-label" VerticalAlignment="Center" />
+							<Border Grid.Column="1" Classes="badge badge-neutral"
+                                    HorizontalAlignment="Left" Margin="10,0,0,0">
+								<TextBlock Text="{Binding RamName}" />
+							</Border>
+							<TextBlock Grid.Column="2" Classes="value">
+								<Run Text="{Binding RamUsedGb, StringFormat={}{0:0.0}}" />
+								<Run Text=" / " />
+								<Run Text="{Binding RamTotalGb, StringFormat={}{0:0.0}}" />
+								<Run Text=" GB" />
+							</TextBlock>
+						</Grid>
+						<ctrl:Sparkline Height="40" Values="{Binding RamHistory}"
                                         Stroke="{StaticResource AppSecondaryBrush}" />
-                    </StackPanel>
+					</StackPanel>
 
-                    <!-- GPU -->
-                    <StackPanel Spacing="6">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Grid.Column="0" Text="GPU" Classes="metric-label" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1" Classes="value">
-                                <Run Text="{Binding GpuUsagePercent, StringFormat={}{0:0}}" /><Run Text="%  " />
-                                <Run Text="{Binding GpuTempCelsius, StringFormat={}{0:0}}" /><Run Text="°C" />
-                            </TextBlock>
-                        </Grid>
-                        <ctrl:Sparkline Height="40" Values="{Binding GpuHistory}"
+					<!-- GPU -->
+					<StackPanel Spacing="6">
+						<Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+							<TextBlock Grid.Column="0" Text="GPU" Classes="metric-label" VerticalAlignment="Center" />
+							<Border Grid.Column="1" Classes="badge badge-neutral"
+                                    HorizontalAlignment="Left" Margin="10,0,0,0">
+								<TextBlock Text="{Binding SelectedGpu.Name}" />
+							</Border>
+							<TextBlock Grid.Column="2" Classes="value">
+								<Run Text="{Binding GpuUsagePercent, StringFormat={}{0:0}}" />
+								<Run Text="%  " />
+								<Run Text="{Binding GpuTempCelsius, StringFormat={}{0:0}}" />
+								<Run Text="°C" />
+							</TextBlock>
+						</Grid>
+						<ctrl:Sparkline Height="40" Values="{Binding GpuHistory}"
                                         Stroke="{StaticResource AppTertiaryBrush}" />
-                    </StackPanel>
+					</StackPanel>
 
-                    <!-- Target GPU dropdown: chooses which GPU's data gets sent to the ESP32 -->
-                    <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
-                        <TextBlock Grid.Column="0" Text="TARGET GPU" Classes="metric-label"
+					<!-- Target GPU dropdown: chooses which GPU's data gets sent to the ESP32 -->
+					<Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
+						<TextBlock Grid.Column="0" Text="TARGET GPU" Classes="metric-label"
                                    VerticalAlignment="Center" Margin="0,0,12,0" />
-                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
+						<ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
                                   ItemsSource="{Binding AvailableGpus}"
                                   SelectedItem="{Binding SelectedGpu}" />
-                    </Grid>
-                </StackPanel>
-            </Border>
+					</Grid>
+				</StackPanel>
+			</Border>
 
-            <!-- ESP32 connection -->
-            <Border Grid.Row="2" Classes="panel" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Grid.Column="0" Text="ESP32 CONNECTION" Classes="section-title"
+			<!-- ESP32 connection -->
+			<Border Grid.Row="2" Classes="panel" Margin="0,0,0,16">
+				<StackPanel Spacing="12">
+					<Grid ColumnDefinitions="*,Auto">
+						<TextBlock Grid.Column="0" Text="ESP32 CONNECTION" Classes="section-title"
                                    VerticalAlignment="Center" />
-                        <Border Grid.Column="1"
+						<Border Grid.Column="1"
                                 Classes.badge-accent="{Binding IsConnected}"
                                 Classes.badge-danger="{Binding !IsConnected}"
                                 Classes="badge">
-                            <TextBlock Text="{Binding ConnectionBadgeText}" />
-                        </Border>
-                    </Grid>
+							<TextBlock Text="{Binding ConnectionBadgeText}" />
+						</Border>
+					</Grid>
 
-                    <Grid ColumnDefinitions="*, 8,Auto">
-                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch"
+					<Grid ColumnDefinitions="*, 8,Auto">
+						<ComboBox Grid.Column="0" HorizontalAlignment="Stretch"
                                   ItemsSource="{Binding AvailablePorts}"
                                   SelectedItem="{Binding SelectedPort}"
                                   IsEnabled="{Binding !IsConnected}" />
-                        <Button Grid.Column="2" Content="REFRESH" Command="{Binding RefreshPortsCommand}"
+						<Button Grid.Column="2" Content="REFRESH" Command="{Binding RefreshPortsCommand}"
                                 IsEnabled="{Binding !IsConnected}" ToolTip.Tip="Refresh ports" />
-                    </Grid>
+					</Grid>
 
-                    <Grid ColumnDefinitions="*, *">
-                        <Button Grid.Column="0" Content="CONNECT" Classes="accent"
+					<Grid ColumnDefinitions="*, *">
+						<Button Grid.Column="0" Content="CONNECT" Classes="accent"
                                 Command="{Binding ConnectCommand}"
                                 IsEnabled="{Binding !IsConnected}"
                                 HorizontalContentAlignment="Left" />
-                        <Button Grid.Column="2" Content="DISCONNECT"
+						<Button Grid.Column="2" Content="DISCONNECT"
                                 Command="{Binding DisconnectCommand}"
                                 IsEnabled="{Binding IsConnected}"
                                 HorizontalContentAlignment="Left" />
-                    </Grid>
+					</Grid>
 
-                    <TextBlock Text="{Binding ConnectionDetailText}" Classes="muted" />
-                </StackPanel>
-            </Border>
+					<TextBlock Text="{Binding ConnectionDetailText}" Classes="muted" />
+				</StackPanel>
+			</Border>
 
-            <!-- Monitoring control -->
-            <Border Grid.Row="3" Classes="panel">
-                <StackPanel Spacing="12">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Grid.Column="0" Text="MONITORING" Classes="section-title"
+			<!-- Monitoring control -->
+			<Border Grid.Row="3" Classes="panel">
+				<StackPanel Spacing="12">
+					<Grid ColumnDefinitions="*,Auto">
+						<TextBlock Grid.Column="0" Text="MONITORING" Classes="section-title"
                                    VerticalAlignment="Center" />
-                        <Border Grid.Column="1"
+						<Border Grid.Column="1"
                                 Classes.badge-accent="{Binding IsMonitoring}"
                                 Classes.badge-neutral="{Binding !IsMonitoring}"
                                 Classes="badge">
-                            <TextBlock Text="{Binding MonitoringBadgeText}" />
-                        </Border>
-                    </Grid>
+							<TextBlock Text="{Binding MonitoringBadgeText}" />
+						</Border>
+					</Grid>
 
-                    <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                        <TextBlock Grid.Column="0" Classes="muted" VerticalAlignment="Center">
-                            <Run Text="Update interval:" /> <Run Text="{Binding IntervalMs}" /> <Run Text="ms" />
-                        </TextBlock>
-                        <Button Grid.Column="1" Classes="accent"
+					<Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+						<TextBlock Grid.Column="0" Classes="muted" VerticalAlignment="Center">
+							<Run Text="Update interval:" />
+							<Run Text="{Binding IntervalMs}" />
+							<Run Text="ms" />
+						</TextBlock>
+						<Button Grid.Column="1" Classes="accent"
                                 Content="{Binding MonitoringButtonText}"
                                 Command="{Binding ToggleMonitoringCommand}" />
-                    </Grid>
-                </StackPanel>
-            </Border>
+					</Grid>
+				</StackPanel>
+			</Border>
 
-        </Grid>
-    </ScrollViewer>
+		</Grid>
+	</ScrollViewer>
 
 </Window>

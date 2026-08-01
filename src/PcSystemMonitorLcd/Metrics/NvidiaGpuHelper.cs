@@ -13,7 +13,9 @@ internal class NvidiaGpuHelper
                 FileName = "nvidia-smi",
                 Arguments = "--query-gpu=utilization.gpu --format=csv,noheader,nounits",
                 RedirectStandardOutput = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                CreateNoWindow = true,                  // <-- ADD THIS: Stops the CMD window from appearing
+                WindowStyle = ProcessWindowStyle.Hidden // <-- ADD THIS: Extra safety precaution
             })!;
             string output = proc.StandardOutput.ReadToEnd().Trim();
             proc.WaitForExit();

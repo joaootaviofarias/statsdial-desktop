@@ -2,12 +2,20 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PcSystemMonitorLcd.Gui.Services;
 
 namespace PcSystemMonitorLcd.Gui.ViewModels;
+
+// Helper record to hold GPU info for the UI dropdown
+public record GpuDisplayItem(string Id, string Name)
+{
+    // Avalonia will automatically call ToString() to show this in the ComboBox
+    public override string ToString() => $"{Id} - {Name}";
+}
 
 public partial class MainViewModel : ViewModelBase
 {
@@ -24,10 +32,14 @@ public partial class MainViewModel : ViewModelBase
         _metricsReader = metricsReader;
         _serialTransport = serialTransport;
 
-        AvailableGpus = new ObservableCollection<string>(_metricsReader.GetAvailableGpus().Select(g => g.Id));
-        SelectedGpu = AvailableGpus.FirstOrDefault();
+        var gpus = _metricsReader.GetAvailableGpus()
+            .Select(g => new GpuDisplayItem(g.Id, g.Name));
 
+        AvailableGpus = new ObservableCollection<GpuDisplayItem>(gpus);
+        SelectedGpu = AvailableGpus.FirstOrDefault();
         Distro = RuntimeInformation.OSDescription;
+        CpuName = _metricsReader.GetCpu()?.Name ?? string.Empty;
+        RamName = _metricsReader.GetRam()?.Name ?? string.Empty;
 
         RefreshPorts();
 
@@ -41,6 +53,7 @@ public partial class MainViewModel : ViewModelBase
     // ----- System info (read-only, bound to the "System Information" panel) -----
 
     [ObservableProperty] private double _cpuUsagePercent;
+    [ObservableProperty] private double _cpuTempCelsius;
     [ObservableProperty] private double _ramUsagePercent;
     [ObservableProperty] private double _ramUsedGb;
     [ObservableProperty] private double _ramTotalGb;
@@ -48,14 +61,20 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private double _gpuTempCelsius;
     [ObservableProperty] private string _distro = string.Empty;
 
+    // ----- Hardware names shown as badges next to the CPU / RAM labels -----
+    // (GPU name is already available via SelectedGpu.Name, no extra prop needed)
+    [ObservableProperty] private string _cpuName = string.Empty;
+    [ObservableProperty] private string _ramName = string.Empty;
+
     public ObservableCollection<double> CpuHistory { get; } = new();
     public ObservableCollection<double> RamHistory { get; } = new();
     public ObservableCollection<double> GpuHistory { get; } = new();
 
     // ----- GPU selection -----
 
-    [ObservableProperty] private ObservableCollection<string> _availableGpus;
-    [ObservableProperty] private string? _selectedGpu;
+    // Changed from string to GpuDisplayItem
+    [ObservableProperty] private ObservableCollection<GpuDisplayItem> _availableGpus;
+    [ObservableProperty] private GpuDisplayItem? _selectedGpu;
 
     // ----- Serial connection -----
 
@@ -133,37 +152,52 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(MonitoringButtonText));
     }
 
-    private void Tick()
+    private async Task Tick()
     {
-        var cpu = _metricsReader.GetCpu();
-        var ram = _metricsReader.GetRam();
+        // 1. Capture the currently selected GPU Id on the UI thread
+        string? currentGpuId = SelectedGpu?.Id;
+        bool isCurrentlyConnected = IsConnected;
+
+        // 2. Run the heavy polling on a background thread so the UI doesn't freeze
+        var (cpu, ram, gpu) = await Task.Run(() =>
+        {
+            var c = _metricsReader.GetCpu();
+            var r = _metricsReader.GetRam();
+            var g = currentGpuId != null ? _metricsReader.GetGpu(currentGpuId) : null;
+
+            return (c, r, g);
+        });
 
         CpuUsagePercent = cpu?.Metrics?.Usage ?? 0;
+        CpuTempCelsius = cpu?.Metrics?.Temp ?? 0;
 
         if (ram?.Metrics != null)
         {
             RamUsagePercent = ram.Metrics.Usage;
             RamTotalGb = Math.Round(ram.Metrics.TotalGb / 1024.0 / 1024.0 / 1024.0, 1);
-            RamUsedGb = Math.Round((ram.Metrics.TotalGb - ram.Metrics.UsedGb) / 1024.0 / 1024.0 / 1024.0, 1);
+            RamUsedGb = Math.Round(ram.Metrics.UsedGb / 1024.0 / 1024.0 / 1024.0, 1);
         }
 
-        if (SelectedGpu is not null)
+        if (gpu != null)
         {
-            var gpu = _metricsReader.GetGpu(SelectedGpu);
-            GpuUsagePercent = gpu?.Metrics?.Usage ?? 0;
-            GpuTempCelsius = gpu?.Metrics?.Temp ?? 0;
+            GpuUsagePercent = gpu.Metrics?.Usage ?? 0;
+            GpuTempCelsius = gpu.Metrics?.Temp ?? 0;
         }
 
+        // Update charts
         PushHistory(CpuHistory, CpuUsagePercent);
         PushHistory(RamHistory, RamUsagePercent);
         PushHistory(GpuHistory, GpuUsagePercent);
 
-        if (IsConnected)
+        // Write to Serial Port
+        if (isCurrentlyConnected)
         {
             var line = $"CPU:{CpuUsagePercent:0}|RAM:{RamUsagePercent:0}|GPU:{GpuUsagePercent:0}|GPUT:{GpuTempCelsius:0}";
 
             try
             {
+                // Note: If your serial port write blocks for a long time, 
+                // you might want to move this inside the Task.Run above as well.
                 _serialTransport.WriteLine(line);
             }
             catch (Exception ex)

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using NvAPIWrapper.GPU;
 using PcSystemMonitorLcd.Hardware;
 
 namespace PcSystemMonitorLcd.Metrics;
@@ -10,6 +11,8 @@ internal class WindowsMetricsProvider : ISystemMetricsReader
 {
     private readonly HardwareInfo _hardwareInfo;
     private readonly PerformanceCounter _cpuCounter;
+    private PhysicalGPU[]? _nvidiaGpus;
+    private bool _nvidiaInitialized;
     private const double MinQueryIntervalSeconds = 1.0;
     private bool _amdInitialized;
     private DateTime _amdLastQueryUtc = DateTime.MinValue;
@@ -21,6 +24,7 @@ internal class WindowsMetricsProvider : ISystemMetricsReader
         _cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
 
         InitCpuTempReader();
+        InitNvidiaApi();
     }
 
     public Cpu GetCpu()
@@ -42,7 +46,8 @@ internal class WindowsMetricsProvider : ISystemMetricsReader
         {
             targetGpu.Metrics = new GpuMetric
             {
-                Usage = Math.Round(GetGpuPercent(targetGpu), 0)
+                Usage = Math.Round(GetGpuPercent(targetGpu), 0),
+                Temp = Math.Round(GetGpuTempCelsius(targetGpu), 0)
             };
         }
 
@@ -55,26 +60,75 @@ internal class WindowsMetricsProvider : ISystemMetricsReader
 
         if (GlobalMemoryStatusEx(ref status) && _hardwareInfo.Ram != null)
         {
+            // Task Manager explicitly uses Total - Available for its calculation
+            double total = status.ullTotalPhys;
+            double used = status.ullTotalPhys - status.ullAvailPhys;
+
+            // Calculate exact percentage instead of relying on the inaccurate dwMemoryLoad
+            double exactUsagePct = (used / total) * 100.0;
+
             _hardwareInfo.Ram.Metrics = new RamMetric
             {
-                Usage = Math.Round((double)status.dwMemoryLoad, 0),
+                Usage = Math.Round(exactUsagePct, 0),
                 TotalGb = status.ullTotalPhys,
-                UsedGb = status.ullTotalPhys - status.ullAvailPhys
+                UsedGb = (ulong)used
             };
         }
 
         return _hardwareInfo.Ram;
     }
 
-    private double GetGpuPercent(Gpu gpu)
+    private double GetGpuPercent(PcSystemMonitorLcd.Gpu gpu)
     {
         return gpu.Vendor switch
         {
-            GpuVendor.Nvidia => NvidiaGpuHelper.TryGetUtilization(),
-            GpuVendor.Amd => -1, // Future AMD GPU implementation
-            GpuVendor.Intel => -1, // Future Intel GPU implementation
+            GpuVendor.Nvidia => GetNvidiaGpuPercent(gpu.Id),
             _ => -1
         };
+    }
+
+    private double GetGpuTempCelsius(PcSystemMonitorLcd.Gpu gpu)
+    {
+        return gpu.Vendor switch
+        {
+            GpuVendor.Nvidia => GetNvidiaGpuTemp(gpu.Id),
+            _ => -1
+        };
+    }
+
+    private double GetNvidiaGpuPercent(string id)
+    {
+        if (!_nvidiaInitialized || _nvidiaGpus == null || _nvidiaGpus.Length == 0) return -1;
+
+        // Grab the first GPU, or match by ID if you mapped it that way
+        var physicalGpu = _nvidiaGpus.FirstOrDefault();
+        if (physicalGpu == null) return -1;
+
+        try
+        {
+            return physicalGpu.UsageInformation.GPU.Percentage;
+        }
+        catch
+        {
+            return -1;
+        }
+    }
+
+    private double GetNvidiaGpuTemp(string id)
+    {
+        if (!_nvidiaInitialized || _nvidiaGpus == null || _nvidiaGpus.Length == 0) return -1;
+
+        var physicalGpu = _nvidiaGpus.FirstOrDefault();
+        if (physicalGpu == null) return -1;
+
+        try
+        {
+            return physicalGpu.ThermalInformation.ThermalSensors.FirstOrDefault()?.CurrentTemperature ?? -1;
+        }
+        catch
+        {
+            return -1;
+        }
     }
 
     private double GetCpuTempCelsius()
@@ -135,6 +189,25 @@ internal class WindowsMetricsProvider : ISystemMetricsReader
             case CpuVendor.Intel:
                 // Future Intel initialization can go here
                 break;
+        }
+    }
+
+    private void InitNvidiaApi()
+    {
+        try
+        {
+            // Only initialize if we detect an NVIDIA GPU in the hardware list
+            if (_hardwareInfo.AvailableGpus.Any(g => g.Vendor == GpuVendor.Nvidia))
+            {
+                NvAPIWrapper.NVIDIA.Initialize();
+                _nvidiaGpus = PhysicalGPU.GetPhysicalGPUs();
+                _nvidiaInitialized = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WindowsMetricsProvider] NvAPI Initialization failed: {ex.Message}");
+            _nvidiaInitialized = false;
         }
     }
 
