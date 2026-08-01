@@ -1,6 +1,4 @@
-﻿using PcSystemMonitorLcd.Hardware;
-
-namespace PcSystemMonitorLcd;
+﻿namespace PcSystemMonitorLcd.Hardware;
 
 public interface IHardwareInfoService
 {

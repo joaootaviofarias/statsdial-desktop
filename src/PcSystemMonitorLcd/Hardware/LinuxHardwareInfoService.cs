@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace PcSystemMonitorLcd.Hardware;
 
@@ -6,14 +7,14 @@ internal sealed class LinuxHardwareInfoService : IHardwareInfoService
 {
     public async Task<HardwareInfo> GetHardwareInfoAsync(CancellationToken ct = default)
     {
-        var (cpuName, cpuVendor) = ReadCpuInfo();
-        var ramName = await ReadRamNameAsync(ct);
-        var (gpuName, gpuVendor) = await ReadGpuInfoAsync(ct);
+        var cpu = ReadCpuInfo();
+        var ram = await ReadRamInfo(ct);
+        var gpus = await ReadAllGpusAsync(ct);
 
-        return new HardwareInfo(cpuName, cpuVendor, ramName, gpuName, gpuVendor);
+        return new HardwareInfo(cpu, ram, gpus);
     }
 
-    private static (string Name, CpuVendor Vendor) ReadCpuInfo()
+    private static Cpu ReadCpuInfo()
     {
         string name = "Unknown";
         string vendorId = string.Empty;
@@ -38,10 +39,14 @@ internal sealed class LinuxHardwareInfoService : IHardwareInfoService
                : CpuVendor.Unknown
         };
 
-        return (name, vendor);
+        return new Cpu
+        {
+            Name = name,
+            Vendor = vendor
+        };
     }
 
-    private static async Task<string> ReadRamNameAsync(CancellationToken ct)
+    private static async Task<Ram> ReadRamInfo(CancellationToken ct)
     {
         try
         {
@@ -59,11 +64,18 @@ internal sealed class LinuxHardwareInfoService : IHardwareInfoService
             }
 
             var name = $"{manufacturer} {partNumber}".Trim();
-            return string.IsNullOrWhiteSpace(name) ? "Unknown" : name;
+
+            return new Ram
+            {
+                Name = string.IsNullOrWhiteSpace(name) ? "Unknown" : name
+            };
         }
         catch
         {
-            return "Unknown";
+            return new Ram
+            {
+                Name = "Unknown"
+            };
         }
     }
 
@@ -84,48 +96,90 @@ internal sealed class LinuxHardwareInfoService : IHardwareInfoService
         return null;
     }
 
-    private static async Task<(string Name, GpuVendor Vendor)> ReadGpuInfoAsync(CancellationToken ct)
+    private static async Task<IReadOnlyList<Gpu>> ReadAllGpusAsync(CancellationToken ct)
     {
+        var gpus = new List<Gpu>();
         const string drmPath = "/sys/class/drm";
-        if (Directory.Exists(drmPath))
+
+        if (!Directory.Exists(drmPath))
         {
-            foreach (var card in Directory.GetDirectories(drmPath, "card*"))
-            {
-                var vendorPath = Path.Combine(card, "device", "vendor");
-                if (!File.Exists(vendorPath)) continue;
-
-                var vendorHex = (await File.ReadAllTextAsync(vendorPath, ct)).Trim();
-                var vendor = vendorHex switch
-                {
-                    "0x10de" => GpuVendor.Nvidia,
-                    "0x1002" => GpuVendor.Amd,
-                    _ => GpuVendor.Unknown
-                };
-                if (vendor == GpuVendor.Unknown) continue;
-
-                var name = await ReadGpuFriendlyNameAsync(ct) ?? vendor.ToString();
-                return (name, vendor);
-            }
+            return gpus;
         }
 
-        return ("Unknown", GpuVendor.Unknown);
+        var pciNames = await ReadPciNamesAsync(ct);
+        int nvidiaIndex = 0;
+
+        foreach (var card in Directory.GetDirectories(drmPath, "card*").OrderBy(c => c))
+        {
+            string cardDirName = Path.GetFileName(card);
+            // Skip connector/render sub-nodes like "card0-DP-1" — only bare "cardN" are adapters.
+            if (!Regex.IsMatch(cardDirName, @"^card\d+$")) continue;
+
+            string devicePath = Path.Combine(card, "device");
+            string vendorPath = Path.Combine(devicePath, "vendor");
+            if (!File.Exists(vendorPath)) continue;
+
+            string vendorHex = (await File.ReadAllTextAsync(vendorPath, ct)).Trim();
+            GpuVendor vendor = vendorHex switch
+            {
+                "0x10de" => GpuVendor.Nvidia,
+                "0x1002" => GpuVendor.Amd,
+                _ => GpuVendor.Unknown
+            };
+
+            string? pciAddress = ResolvePciAddress(devicePath);
+            string friendlyName = pciAddress is not null && pciNames.TryGetValue(pciAddress, out var n)
+                ? n
+                : vendor.ToString();
+
+            string cardNumber = cardDirName.Replace("card", "");
+            string id = vendor == GpuVendor.Nvidia ? (nvidiaIndex++).ToString() : cardNumber;
+
+            gpus.Add(new Gpu { Id = id, Name = friendlyName, Vendor = vendor });
+        }
+
+        return gpus;
     }
 
-    private static async Task<string?> ReadGpuFriendlyNameAsync(CancellationToken ct)
+    private static string? ResolvePciAddress(string devicePath)
     {
         try
         {
-            var output = await RunCommandAsync("lspci", "-mm", ct);
-            foreach (var line in output.Split('\n'))
+            var target = Directory.ResolveLinkTarget(devicePath, returnFinalTarget: true);
+            return target?.Name; // e.g. "0000:01:00.0"
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static async Task<Dictionary<string, string>> ReadPciNamesAsync(CancellationToken ct)
+    {
+        var map = new Dictionary<string, string>();
+        try
+        {
+            string output = await RunCommandAsync("lspci", "-mm -D", ct);
+            foreach (var line in output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
             {
-                if (line.Contains("VGA compatible controller", StringComparison.OrdinalIgnoreCase) ||
-                    line.Contains("3D controller", StringComparison.OrdinalIgnoreCase))
-                    return line.Trim();
+                if (!line.Contains("VGA compatible controller", StringComparison.OrdinalIgnoreCase) &&
+                    !line.Contains("3D controller", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                int firstSpace = line.IndexOf(' ');
+                if (firstSpace < 0) continue;
+                string address = line[..firstSpace].Trim();
+
+                var matches = Regex.Matches(line, "\"([^\"]*)\"");
+                if (matches.Count < 3) continue;
+
+                string vendorName = matches[1].Groups[1].Value;
+                string deviceName = matches[2].Groups[1].Value;
+                map[address] = $"{vendorName} {deviceName}".Trim();
             }
         }
         catch { }
-
-        return null;
+        return map;
     }
 
     private static string ExtractValue(string line)

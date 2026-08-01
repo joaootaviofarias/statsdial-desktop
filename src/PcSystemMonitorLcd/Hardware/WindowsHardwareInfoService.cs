@@ -6,17 +6,16 @@ namespace PcSystemMonitorLcd.Hardware;
 [SupportedOSPlatform("windows")]
 internal sealed class WindowsHardwareInfoService : IHardwareInfoService
 {
-
     public Task<HardwareInfo> GetHardwareInfoAsync(CancellationToken ct = default)
     {
-        var (cpuName, cpuVendor) = ReadCpuInfo();
-        var ramName = ReadRamName();
-        var (gpuName, gpuVendor) = ReadGpuInfo();
+        var cpu = ReadCpuInfo();
+        var ram = ReadRamInfo();
+        var gpus = ReadAllGpus();
 
-        return Task.FromResult(new HardwareInfo(cpuName, cpuVendor, ramName, gpuName, gpuVendor));
+        return Task.FromResult(new HardwareInfo(cpu, ram, gpus));
     }
 
-    private static (string Name, CpuVendor Vendor) ReadCpuInfo()
+    private static Cpu ReadCpuInfo()
     {
         using var searcher = new ManagementObjectSearcher("SELECT Name, Manufacturer FROM Win32_Processor");
         foreach (ManagementObject obj in searcher.Get())
@@ -33,12 +32,12 @@ internal sealed class WindowsHardwareInfoService : IHardwareInfoService
                    : CpuVendor.Unknown
             };
 
-            return (name, vendor);
+            return new Cpu { Name = name, Vendor = vendor };
         }
-        return ("Unknown", CpuVendor.Unknown);
+        return new Cpu { Name = "Unknown", Vendor = CpuVendor.Unknown };
     }
 
-    private static string ReadRamName()
+    private static Ram ReadRamInfo()
     {
         using var searcher = new ManagementObjectSearcher("SELECT Manufacturer, PartNumber FROM Win32_PhysicalMemory");
         foreach (ManagementObject obj in searcher.Get())
@@ -48,14 +47,19 @@ internal sealed class WindowsHardwareInfoService : IHardwareInfoService
 
             var name = $"{manufacturer} {partNumber}".Trim();
             if (!string.IsNullOrWhiteSpace(name))
-                return name;
+            {
+                return new Ram { Name = name };
+            }
         }
-        return "Unknown";
+        return new Ram { Name = "Unknown" };
     }
 
-    private static (string Name, GpuVendor Vendor) ReadGpuInfo()
+    private static IReadOnlyList<Gpu> ReadAllGpus()
     {
+        var gpus = new List<Gpu>();
         using var searcher = new ManagementObjectSearcher("SELECT Name, AdapterCompatibility FROM Win32_VideoController");
+
+        int index = 0;
         foreach (ManagementObject obj in searcher.Get())
         {
             var name = obj["Name"]?.ToString()?.Trim() ?? "Unknown";
@@ -71,9 +75,10 @@ internal sealed class WindowsHardwareInfoService : IHardwareInfoService
                    : GpuVendor.Unknown
             };
 
-            if (vendor != GpuVendor.Unknown)
-                return (name, vendor);
+            gpus.Add(new Gpu { Id = index.ToString(), Name = name, Vendor = vendor });
+            index++;
         }
-        return ("Unknown", GpuVendor.Unknown);
+
+        return gpus;
     }
 }

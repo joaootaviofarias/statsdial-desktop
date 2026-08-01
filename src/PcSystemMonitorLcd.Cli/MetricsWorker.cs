@@ -31,15 +31,14 @@ public class MetricsWorker : BackgroundService
         {
             try
             {
-                double cpu = _reader.GetCpuPercent();
-                double ram = _reader.GetRamPercent();
-                double gpu = _reader.GetGpuPercent();
-                double cpuTemp = _reader.GetCpuTempCelsius();
+                var cpu = _reader.GetCpu();
+                var ram = _reader.GetRam();
+                var gpu = _reader.GetGpu(_config.GpuId);
                 int hour = DateTime.Now.Hour;
                 int minute = DateTime.Now.Minute;
                 int second = DateTime.Now.Second;
 
-                string payload = $"{cpu},{gpu},{ram},{cpuTemp},{hour},{minute},{second}";
+                string payload = $"{cpu.Metrics.Usage},{gpu.Metrics.Usage},{ram.Metrics.Usage},{cpu.Metrics.Temp},{hour},{minute},{second}";
 
                 sender.SendLine(payload);
                 _logger.LogDebug("Sent: {Payload}", payload);

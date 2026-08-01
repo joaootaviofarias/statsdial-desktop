@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PcSystemMonitorLcd.Hardware;
-using PcSystemMonitorLcd.Metrics.Linux;
-using PcSystemMonitorLcd.Metrics.Windows;
+using PcSystemMonitorLcd.Metrics;
 
 namespace PcSystemMonitorLcd;
 
@@ -9,17 +8,9 @@ public static class SystemMetricsServiceCollectionExtensions
 {
     public static IServiceCollection AddSystemMetricsReader(this IServiceCollection services)
     {
-        services.AddSingleton<IHardwareInfoService>(_ =>
-        {
-            if (OperatingSystem.IsWindows()) return new WindowsHardwareInfoService();
-            if (OperatingSystem.IsLinux()) return new LinuxHardwareInfoService();
-            throw new PlatformNotSupportedException(
-                $"No {nameof(IHardwareInfoService)} implementation is available for the current OS.");
-        });
-
         services.AddSingleton<ISystemMetricsReader>(sp =>
         {
-            var hardwareInfoService = sp.GetRequiredService<IHardwareInfoService>();
+            var hardwareInfoService = GetOSHardwareInfoService();
             HardwareInfo hardwareInfo = hardwareInfoService.GetHardwareInfoAsync().GetAwaiter().GetResult();
 
             if (OperatingSystem.IsWindows())
@@ -32,5 +23,15 @@ public static class SystemMetricsServiceCollectionExtensions
         });
 
         return services;
+    }
+
+    private static IHardwareInfoService GetOSHardwareInfoService()
+    {
+        if (OperatingSystem.IsWindows())
+            return new WindowsHardwareInfoService();
+        if (OperatingSystem.IsLinux())
+            return new LinuxHardwareInfoService();
+        throw new PlatformNotSupportedException(
+            $"No {nameof(IHardwareInfoService)} implementation is available for the current OS.");
     }
 }

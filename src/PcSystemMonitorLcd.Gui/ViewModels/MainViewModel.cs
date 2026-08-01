@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,29 +11,23 @@ namespace PcSystemMonitorLcd.Gui.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-   private const int HistoryLength = 40;
+    private const int HistoryLength = 40;
 
-    private readonly ISystemInfoService _systemInfoService;
-    private readonly IGpuService _gpuService;
+    private readonly ISystemMetricsReader _metricsReader;
     private readonly ISerialTransportService _serialTransport;
     private readonly DispatcherTimer _timer;
 
-    public MainViewModel()
-        : this(new SystemInfoService(), new GpuService(), new SerialTransportService())
-    {
-    }
-
     public MainViewModel(
-        ISystemInfoService systemInfoService,
-        IGpuService gpuService,
+        ISystemMetricsReader metricsReader,
         ISerialTransportService serialTransport)
     {
-        _systemInfoService = systemInfoService;
-        _gpuService = gpuService;
+        _metricsReader = metricsReader;
         _serialTransport = serialTransport;
 
-        AvailableGpus = new ObservableCollection<string>(_gpuService.GetAvailableGpus());
+        AvailableGpus = new ObservableCollection<string>(_metricsReader.GetAvailableGpus().Select(g => g.Id));
         SelectedGpu = AvailableGpus.FirstOrDefault();
+
+        Distro = RuntimeInformation.OSDescription;
 
         RefreshPorts();
 
@@ -53,7 +48,6 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private double _gpuTempCelsius;
     [ObservableProperty] private string _distro = string.Empty;
 
-    // Rolling history for the sparkline graphs — each is capped at HistoryLength points
     public ObservableCollection<double> CpuHistory { get; } = new();
     public ObservableCollection<double> RamHistory { get; } = new();
     public ObservableCollection<double> GpuHistory { get; } = new();
@@ -141,18 +135,23 @@ public partial class MainViewModel : ViewModelBase
 
     private void Tick()
     {
-        var snapshot = _systemInfoService.GetSnapshot();
+        var cpu = _metricsReader.GetCpu();
+        var ram = _metricsReader.GetRam();
 
-        CpuUsagePercent = snapshot.CpuUsagePercent;
-        RamUsagePercent = snapshot.RamUsagePercent;
-        RamUsedGb = snapshot.RamUsedGb;
-        RamTotalGb = snapshot.RamTotalGb;
-        Distro = snapshot.OsDescription;
+        CpuUsagePercent = cpu?.Metrics?.Usage ?? 0;
+
+        if (ram?.Metrics != null)
+        {
+            RamUsagePercent = ram.Metrics.Usage;
+            RamTotalGb = Math.Round(ram.Metrics.TotalGb / 1024.0 / 1024.0 / 1024.0, 1);
+            RamUsedGb = Math.Round((ram.Metrics.TotalGb - ram.Metrics.UsedGb) / 1024.0 / 1024.0 / 1024.0, 1);
+        }
 
         if (SelectedGpu is not null)
         {
-            GpuUsagePercent = _gpuService.GetUsage(SelectedGpu);
-            GpuTempCelsius = _gpuService.GetTemperature(SelectedGpu);
+            var gpu = _metricsReader.GetGpu(SelectedGpu);
+            GpuUsagePercent = gpu?.Metrics?.Usage ?? 0;
+            GpuTempCelsius = gpu?.Metrics?.Temp ?? 0;
         }
 
         PushHistory(CpuHistory, CpuUsagePercent);
@@ -161,8 +160,6 @@ public partial class MainViewModel : ViewModelBase
 
         if (IsConnected)
         {
-            // TODO: match this to whatever framing your ESP32 firmware/LVGL code expects.
-            // This is a simple pipe-delimited line as a starting point.
             var line = $"CPU:{CpuUsagePercent:0}|RAM:{RamUsagePercent:0}|GPU:{GpuUsagePercent:0}|GPUT:{GpuTempCelsius:0}";
 
             try
@@ -183,12 +180,6 @@ public partial class MainViewModel : ViewModelBase
         history.Add(value);
         while (history.Count > HistoryLength)
             history.RemoveAt(0);
-    }
-
-    partial void OnSelectedGpuChanged(string? value)
-    {
-        // Selecting a different GPU in the dropdown immediately affects what gets sent
-        // to the ESP32 on the next tick — no extra wiring needed.
     }
 
     partial void OnIntervalMsChanged(int value)
