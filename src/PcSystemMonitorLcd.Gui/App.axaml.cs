@@ -1,7 +1,9 @@
 using System;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PcSystemMonitorLcd.Gui.Services;
 using PcSystemMonitorLcd.Gui.ViewModels;
@@ -12,27 +14,31 @@ namespace PcSystemMonitorLcd.Gui;
 public partial class App : Application
 {
     public static IServiceProvider? Services { get; private set; }
+    public static bool IsActuallyExiting { get; set; } = false;
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+
+        string assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
+        string orbitronUri = $"avares://{assemblyName}/Assets/Fonts#Orbitron";
+        string rajdhaniUri = $"avares://{assemblyName}/Assets/Fonts#Rajdhani";
+
+        Resources["DisplayFont"] = new FontFamily(orbitronUri);
+        Resources["BodyFont"] = new FontFamily(rajdhaniUri);
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // 1. Setup DI container
         var services = new ServiceCollection();
 
-        // Add OS-specific metrics reader
         services.AddSystemMetricsReader();
-
-        // Add Avalonia ViewModels and Services
         services.AddSingleton<ISerialTransportService, SerialTransportService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
         services.AddTransient<MainViewModel>();
 
-        // 2. Build provider
         Services = services.BuildServiceProvider();
 
-        // 3. Resolve ViewModel and assign it to the Window
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
@@ -40,7 +46,6 @@ public partial class App : Application
                 DataContext = Services.GetRequiredService<MainViewModel>()
             };
 
-            // Dispose of ISystemMetricsReader on exit to release perf counters/sensors gracefully
             desktop.Exit += (s, e) =>
             {
                 if (Services is IDisposable disposable)

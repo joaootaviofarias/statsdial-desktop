@@ -1,0 +1,40 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="PcSystemMonitorLcd.Gui.Views.AboutWindow"
+        Title="About PC Monitor"
+        Width="350" Height="250"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource AppBackgroundBrush}"
+        Icon="/Assets/avalonia-logo.ico">
+
+    <Border Classes="panel" Margin="20">
+        <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+            
+            <TextBlock Text="PC MONITOR" 
+                       Classes="section-title" 
+                       FontSize="20" 
+                       HorizontalAlignment="Center" />
+            
+            <TextBlock Text="Version 1.0.0" 
+                       Classes="muted" 
+                       HorizontalAlignment="Center" />
+            
+            <TextBlock Text="Created by Joao Otavio" 
+                       Foreground="{StaticResource AppTextPrimaryBrush}" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,10,0,0"/>
+
+            <TextBlock Text="Monitoring desktop metrics via ESP32." 
+                       Classes="muted" 
+                       TextWrapping="Wrap" 
+                       TextAlignment="Center" />
+            
+            <Button Content="CLOSE" 
+                    Classes="accent" 
+                    HorizontalAlignment="Center" 
+                    Margin="0,15,0,0"
+                    Click="Close_Click"/>
+        </StackPanel>
+    </Border>
+</Window>

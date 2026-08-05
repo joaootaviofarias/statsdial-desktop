@@ -5,6 +5,17 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <Platforms>AnyCPU;x64</Platforms>
+
+		<Product>PC Monitor</Product>
+		<AssemblyTitle>PC Monitor</AssemblyTitle>
+		<Version>1.0.0</Version>
+		<Authors>Joao Otavio</Authors>
+
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     </PropertyGroup>
 
     <ItemGroup>

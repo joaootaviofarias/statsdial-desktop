@@ -15,8 +15,8 @@
 
     <Application.Resources>
         <!-- Fonts: Orbitron for display/section titles (cyberpunk), Rajdhani for body (Light/Bold pairing) -->
-        <FontFamily x:Key="DisplayFont">avares://PcSystemMonitorLcd.Gui/Assets/Fonts#Orbitron</FontFamily>
-        <FontFamily x:Key="BodyFont">avares://PcSystemMonitorLcd.Gui/Assets/Fonts#Rajdhani</FontFamily>
+		<FontFamily x:Key="DisplayFont">avares://PcSystemMonitorLcd.Gui/Assets/Fonts#Orbitron</FontFamily>
+		<FontFamily x:Key="BodyFont">avares://PcSystemMonitorLcd.Gui/Assets/Fonts#Rajdhani</FontFamily>
 
         <!-- Palette -->
         <Color x:Key="AppBackgroundColor">#050608</Color>
@@ -127,9 +127,10 @@
 
         <!-- Badges / chips -->
         <Style Selector="Border.badge">
-            <Setter Property="CornerRadius" Value="999" />
-            <Setter Property="Padding" Value="10,3" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="CornerRadius" Value="999" />
+			<Setter Property="Padding" Value="10,3" />
+			<Setter Property="HorizontalAlignment" Value="Left" />
+			<Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
         <Style Selector="Border.badge TextBlock">

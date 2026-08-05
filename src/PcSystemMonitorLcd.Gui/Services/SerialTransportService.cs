@@ -29,8 +29,6 @@ public sealed class SerialTransportService : ISerialTransportService
             return SerialPort.GetPortNames().OrderBy(p => p).ToArray();
         }
 
-        // On Linux, SerialPort.GetPortNames() is unreliable, so scan /dev directly
-        // for the typical USB-serial device names an ESP32 shows up as.
         var candidates = new List<string>();
         foreach (var pattern in new[] { "ttyUSB*", "ttyACM*" })
         {
