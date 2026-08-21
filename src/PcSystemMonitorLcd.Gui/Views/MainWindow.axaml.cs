@@ -2,6 +2,8 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using StatsDial.Desktop.ViewModels;
 
 namespace StatsDial.Desktop.Views;
@@ -46,7 +48,7 @@ public partial class MainWindow : Window
     private void SetupTrayIcon()
     {
         // Create the context menu items
-        var showItem = new NativeMenuItem { Header = "Show PC Monitor" };
+        var showItem = new NativeMenuItem { Header = "Show" };
         showItem.Click += Show_Click;
 
         var aboutItem = new NativeMenuItem { Header = "About" };
@@ -66,7 +68,7 @@ public partial class MainWindow : Window
         {
             // We can brilliantly re-use the Window icon you already defined in XAML!
             Icon = this.Icon,
-            ToolTipText = "PC Monitor",
+            ToolTipText = "Stats Dial",
             Menu = menu
         };
 
@@ -133,5 +135,18 @@ public partial class MainWindow : Window
         {
             this.WindowState = WindowState.Normal;
         }
+    }
+
+    private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+
+    private void CloseWindow_Click(object? sender, RoutedEventArgs e)
+    {
+        Close();
     }
 }
