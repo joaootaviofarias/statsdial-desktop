@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PcSystemMonitorLcd.Cli;
+using StatsDial.Cli;
 
 internal static class ServiceCollectionExtensions
 {

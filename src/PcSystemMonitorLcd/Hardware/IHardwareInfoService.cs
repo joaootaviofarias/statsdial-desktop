@@ -1,4 +1,4 @@
-﻿namespace PcSystemMonitorLcd.Hardware;
+﻿namespace StatsDial.Core.Hardware;
 
 public interface IHardwareInfoService
 {

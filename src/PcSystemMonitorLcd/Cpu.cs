@@ -1,6 +1,6 @@
-﻿using PcSystemMonitorLcd.Hardware;
+﻿using StatsDial.Core.Hardware;
 
-namespace PcSystemMonitorLcd
+namespace StatsDial.Core
 {
     public class Cpu
     {

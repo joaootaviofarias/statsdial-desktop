@@ -2,9 +2,9 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using PcSystemMonitorLcd.Gui.ViewModels;
+using StatsDial.Desktop.ViewModels;
 
-namespace PcSystemMonitorLcd.Gui.Views;
+namespace StatsDial.Desktop.Views;
 
 public partial class MainWindow : Window
 {

@@ -6,7 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace PcSystemMonitorLcd.Gui.Controls;
+namespace StatsDial.Desktop.Controls;
 
 public sealed class Sparkline : Control
 {

@@ -1,4 +1,4 @@
-namespace PcSystemMonitorLcd.Cli;
+namespace StatsDial.Cli;
 
 public class AppConfig
 {

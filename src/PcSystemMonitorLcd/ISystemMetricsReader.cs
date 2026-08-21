@@ -1,4 +1,4 @@
-﻿namespace PcSystemMonitorLcd;
+﻿namespace StatsDial.Core;
 
 public interface ISystemMetricsReader : IDisposable
 {

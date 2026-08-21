@@ -5,7 +5,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace PcSystemMonitorLcd.Gui.Services;
+namespace StatsDial.Desktop.Services;
 
 public interface ISerialTransportService : IDisposable
 {

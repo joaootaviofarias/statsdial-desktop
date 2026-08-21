@@ -1,6 +1,6 @@
-﻿using PcSystemMonitorLcd.Hardware;
+﻿using StatsDial.Core.Hardware;
 
-namespace PcSystemMonitorLcd.Metrics;
+namespace StatsDial.Core.Metrics;
 
 internal class LinuxMetricsProvider : ISystemMetricsReader
 {

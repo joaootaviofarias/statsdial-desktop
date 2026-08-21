@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\PcSystemMonitorLcd\PcSystemMonitorLcd.csproj" />
+	  <ProjectReference Include="..\PcSystemMonitorLcd\StatsDial.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

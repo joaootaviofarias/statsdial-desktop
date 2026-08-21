@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace PcSystemMonitorLcd.Metrics;
+namespace StatsDial.Core.Metrics;
 
 internal class NvidiaGpuHelper
 {

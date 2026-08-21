@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace PcSystemMonitorLcd.Hardware;
+namespace StatsDial.Core.Hardware;
 
 internal sealed class LinuxHardwareInfoService : IHardwareInfoService
 {

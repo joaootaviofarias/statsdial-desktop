@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace PcSystemMonitorLcd.Gui.Services
+namespace StatsDial.Desktop.Services
 {
     public class SettingsService : ISettingsService
     {

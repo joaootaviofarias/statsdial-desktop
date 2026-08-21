@@ -5,11 +5,12 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
-using PcSystemMonitorLcd.Gui.Services;
-using PcSystemMonitorLcd.Gui.ViewModels;
-using PcSystemMonitorLcd.Gui.Views;
+using StatsDial.Core;
+using StatsDial.Desktop.Services;
+using StatsDial.Desktop.ViewModels;
+using StatsDial.Desktop.Views;
 
-namespace PcSystemMonitorLcd.Gui;
+namespace StatsDial.Desktop;
 
 public partial class App : Application
 {

@@ -1,7 +1,7 @@
 ﻿using System.Management;
 using System.Runtime.Versioning;
 
-namespace PcSystemMonitorLcd.Hardware;
+namespace StatsDial.Core.Hardware;
 
 [SupportedOSPlatform("windows")]
 internal sealed class WindowsHardwareInfoService : IHardwareInfoService

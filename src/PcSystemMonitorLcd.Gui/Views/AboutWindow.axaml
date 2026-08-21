@@ -1,17 +1,17 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="PcSystemMonitorLcd.Gui.Views.AboutWindow"
-        Title="About PC Monitor"
+        x:Class="StatsDial.Desktop.Views.AboutWindow"
+        Title="About Stats Dial"
         Width="350" Height="250"
         CanResize="False"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource AppBackgroundBrush}"
-        Icon="/Assets/avalonia-logo.ico">
+        Icon="/Assets/icon.ico">
 
     <Border Classes="panel" Margin="20">
         <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
             
-            <TextBlock Text="PC MONITOR" 
+            <TextBlock Text="STATS DIAL" 
                        Classes="section-title" 
                        FontSize="20" 
                        HorizontalAlignment="Center" />

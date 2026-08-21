@@ -1,4 +1,4 @@
-﻿namespace PcSystemMonitorLcd.Gui.Services
+﻿namespace StatsDial.Desktop.Services
 {
     public class AppSettings
     {

@@ -1,4 +1,4 @@
-namespace PcSystemMonitorLcd.Metrics;
+namespace StatsDial.Core.Metrics;
 
 internal class CpuSnapshot(long User, long Nice, long System, long Idle, long IoWait, long Irq, long SoftIrq)
 {

@@ -3,16 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.8.12021.73
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PcSystemMonitorLcd.Cli", "src\PcSystemMonitorLcd.Cli\PcSystemMonitorLcd.Cli.csproj", "{8F4D9966-3B57-4F34-ABAC-C15FDAC0FFDC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsDial.Cli", "src\PcSystemMonitorLcd.Cli\StatsDial.Cli.csproj", "{8F4D9966-3B57-4F34-ABAC-C15FDAC0FFDC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4C6B739E-36A1-4850-B8EE-C620C2939C55} = {4C6B739E-36A1-4850-B8EE-C620C2939C55}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PcSystemMonitorLcd.Gui", "src\PcSystemMonitorLcd.Gui\PcSystemMonitorLcd.Gui.csproj", "{98DD2336-304D-4548-B792-D85BC74F7DC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsDial.Desktop", "src\PcSystemMonitorLcd.Gui\StatsDial.Desktop.csproj", "{98DD2336-304D-4548-B792-D85BC74F7DC8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RmSdkBridge", "src\RmSdkBridge\RmSdkBridge.vcxproj", "{4C6B739E-36A1-4850-B8EE-C620C2939C55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PcSystemMonitorLcd", "src\PcSystemMonitorLcd\PcSystemMonitorLcd.csproj", "{B051590E-4CB5-4D26-ADB2-CBF389C3B0F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsDial.Core", "src\PcSystemMonitorLcd\StatsDial.Core.csproj", "{B051590E-4CB5-4D26-ADB2-CBF389C3B0F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

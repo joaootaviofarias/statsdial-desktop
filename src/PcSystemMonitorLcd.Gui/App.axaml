@@ -1,7 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="PcSystemMonitorLcd.Gui.App"
-             xmlns:local="using:PcSystemMonitorLcd.Gui"
+             x:Class="StatsDial.Desktop.App"
+             xmlns:local="using:StatsDial.Desktop"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -15,8 +15,8 @@
 
     <Application.Resources>
         <!-- Fonts: Orbitron for display/section titles (cyberpunk), Rajdhani for body (Light/Bold pairing) -->
-		<FontFamily x:Key="DisplayFont">avares://PcSystemMonitorLcd.Gui/Assets/Fonts#Orbitron</FontFamily>
-		<FontFamily x:Key="BodyFont">avares://PcSystemMonitorLcd.Gui/Assets/Fonts#Rajdhani</FontFamily>
+		<FontFamily x:Key="DisplayFont">avares://StatsDial.Desktop/Assets/Fonts#Orbitron</FontFamily>
+		<FontFamily x:Key="BodyFont">avares://StatsDial.Desktop/Assets/Fonts#Rajdhani</FontFamily>
 
         <!-- Palette -->
         <Color x:Key="AppBackgroundColor">#050608</Color>

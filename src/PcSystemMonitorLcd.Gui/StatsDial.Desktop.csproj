@@ -7,7 +7,7 @@
         <Platforms>AnyCPU;x64</Platforms>
 
 		<Product>PC Monitor</Product>
-		<AssemblyTitle>PC Monitor</AssemblyTitle>
+		<AssemblyTitle>Stats Dial</AssemblyTitle>
 		<Version>1.0.0</Version>
 		<Authors>Joao Otavio</Authors>
 
@@ -16,6 +16,7 @@
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<RootNamespace>StatsDial.Desktop</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -41,6 +42,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PcSystemMonitorLcd\PcSystemMonitorLcd.csproj" />
+      <ProjectReference Include="..\PcSystemMonitorLcd\StatsDial.Core.csproj" />
     </ItemGroup>
 </Project>

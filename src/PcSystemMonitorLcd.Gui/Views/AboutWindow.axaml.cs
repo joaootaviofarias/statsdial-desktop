@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace PcSystemMonitorLcd.Gui.Views;
+namespace StatsDial.Desktop.Views;
 
 public partial class AboutWindow : Window
 {

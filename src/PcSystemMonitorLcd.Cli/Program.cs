@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PcSystemMonitorLcd;
-using PcSystemMonitorLcd.Cli;
+using StatsDial;
+using StatsDial.Cli;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args)
     .ConfigureSerilogLogging()

@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace PcSystemMonitorLcd.Gui.ViewModels;
+namespace StatsDial.Desktop.ViewModels;
 
 public abstract class ViewModelBase : ObservableObject
 {

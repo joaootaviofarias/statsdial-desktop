@@ -1,8 +1,8 @@
-namespace PcSystemMonitorLcd.Cli;
+namespace StatsDial.Cli;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
+using StatsDial.Core;
 
 public class MetricsWorker : BackgroundService
 {

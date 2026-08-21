@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PcSystemMonitorLcd.Gui.Services;
+using StatsDial.Core;
+using StatsDial.Desktop.Services;
 
-namespace PcSystemMonitorLcd.Gui.ViewModels;
+namespace StatsDial.Desktop.ViewModels;
 
 // Helper record to hold GPU info for the UI dropdown
 public record GpuDisplayItem(string Id, string Name)
@@ -62,7 +63,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     public string TraySummaryText =>
-    $"CPU: {CpuUsagePercent:0}% ({CpuTempCelsius:0}°C) | GPU: {GpuUsagePercent:0}% ({GpuTempCelsius:0}°C) | RAM: {RamUsedGb:0.1} GB";
+    $"CPU: {CpuUsagePercent:0}% ({CpuTempCelsius:0}°C) | GPU: {GpuUsagePercent:0}% ({GpuTempCelsius:0}°C) | RAM: {RamUsedGb:0.0} GB";
 
     // ----- System info (read-only, bound to the "System Information" panel) -----
 

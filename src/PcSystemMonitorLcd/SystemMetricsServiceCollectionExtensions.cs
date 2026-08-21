@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PcSystemMonitorLcd.Hardware;
-using PcSystemMonitorLcd.Metrics;
+using StatsDial.Core.Hardware;
+using StatsDial.Core.Metrics;
 
-namespace PcSystemMonitorLcd;
+namespace StatsDial.Core;
 
 public static class SystemMetricsServiceCollectionExtensions
 {

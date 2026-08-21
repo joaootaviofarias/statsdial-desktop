@@ -2,9 +2,9 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using NvAPIWrapper.GPU;
-using PcSystemMonitorLcd.Hardware;
+using StatsDial.Core.Hardware;
 
-namespace PcSystemMonitorLcd.Metrics;
+namespace StatsDial.Core.Metrics;
 
 [SupportedOSPlatform("windows")]
 internal class WindowsMetricsProvider : ISystemMetricsReader
@@ -78,7 +78,7 @@ internal class WindowsMetricsProvider : ISystemMetricsReader
         return _hardwareInfo.Ram;
     }
 
-    private double GetGpuPercent(PcSystemMonitorLcd.Gpu gpu)
+    private double GetGpuPercent(StatsDial.Core.Gpu gpu)
     {
         return gpu.Vendor switch
         {
@@ -87,7 +87,7 @@ internal class WindowsMetricsProvider : ISystemMetricsReader
         };
     }
 
-    private double GetGpuTempCelsius(PcSystemMonitorLcd.Gpu gpu)
+    private double GetGpuTempCelsius(StatsDial.Core.Gpu gpu)
     {
         return gpu.Vendor switch
         {
