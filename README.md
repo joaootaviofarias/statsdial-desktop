@@ -1,5 +1,15 @@
-# pc-system-monitor-lcd-worker
- 
-A Linux background worker that reads real-time PC hardware metrics (CPU, GPU, RAM, temperature) and streams them over USB Serial to the ESP32 display.
- 
-> Part of the [pc-system-monitor-lcd-esp](https://github.com/joaootaviofarias/pc-system-monitor-lcd-esp) project.
+# Stats Dial Desktop
+
+A desktop app that reads PC hardware info and sends it via serial to the [Stats Dial Firmware](https://github.com/joaootaviofarias/statsdial-firmware) running on an ESP32 with a round LCD display.
+
+![StatsDial](images/screenshot.png)
+
+## 🖥️ Windows App
+
+A desktop GUI (built with Avalonia) for monitoring and sending hardware stats.
+
+**Features:**
+
+- **Real-time Monitoring:** Displays CPU usage/temperature, GPU usage/temperature, and RAM usage.
+- **Target GPU Selection:** Choose which GPU to monitor when multiple are installed.
+- **ESP32 Connection:** Select COM port, connect/disconnect, and refresh available ports.
