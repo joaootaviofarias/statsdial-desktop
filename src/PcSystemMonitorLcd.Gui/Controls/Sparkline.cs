@@ -6,7 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace PcSystemMonitorLcd.Gui.Controls;
+namespace StatsDial.Desktop.Controls;
 
 public sealed class Sparkline : Control
 {
@@ -102,15 +102,17 @@ public sealed class Sparkline : Control
             ctx.EndFigure(true);
         }
 
+        var strokeColor = (Stroke as ISolidColorBrush)?.Color ?? Colors.Transparent;
+
         var fillBrush = new LinearGradientBrush
         {
             StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
             EndPoint = new RelativePoint(0, 1, RelativeUnit.Relative),
             GradientStops =
-            {
-                new GradientStop(((SolidColorBrush)Stroke).Color, 0),
-                new GradientStop(Color.FromArgb(0, 0, 0, 0), 1)
-            }
+    {
+        new GradientStop(strokeColor, 0),
+        new GradientStop(Color.FromArgb(0, 0, 0, 0), 1)
+    }
         };
         fillBrush.Opacity = 0.18;
         context.DrawGeometry(fillBrush, null, fillGeometry);

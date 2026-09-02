@@ -1,38 +1,57 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PcSystemMonitorLcd.Gui.Services;
+using StatsDial.Core;
+using StatsDial.Desktop.Services;
 
-namespace PcSystemMonitorLcd.Gui.ViewModels;
+namespace StatsDial.Desktop.ViewModels;
+
+// Helper record to hold GPU info for the UI dropdown
+public record GpuDisplayItem(string Id, string Name)
+{
+    // Avalonia will automatically call ToString() to show this in the ComboBox
+    public override string ToString() => $"{Id} - {Name}";
+}
 
 public partial class MainViewModel : ViewModelBase
 {
-   private const int HistoryLength = 40;
+    private const int HistoryLength = 40;
 
-    private readonly ISystemInfoService _systemInfoService;
-    private readonly IGpuService _gpuService;
+    private readonly ISystemMetricsReader _metricsReader;
     private readonly ISerialTransportService _serialTransport;
+    private readonly ISettingsService _settingsService;
     private readonly DispatcherTimer _timer;
-
-    public MainViewModel()
-        : this(new SystemInfoService(), new GpuService(), new SerialTransportService())
-    {
-    }
+    private readonly AppSettings _settings;
+    private bool _isLoadingSettings;
 
     public MainViewModel(
-        ISystemInfoService systemInfoService,
-        IGpuService gpuService,
-        ISerialTransportService serialTransport)
+        ISystemMetricsReader metricsReader,
+        ISerialTransportService serialTransport,
+        ISettingsService settingsService)
     {
-        _systemInfoService = systemInfoService;
-        _gpuService = gpuService;
+        _metricsReader = metricsReader;
         _serialTransport = serialTransport;
+        _settingsService = settingsService;
+        _settings = _settingsService.Load();
 
-        AvailableGpus = new ObservableCollection<string>(_gpuService.GetAvailableGpus());
-        SelectedGpu = AvailableGpus.FirstOrDefault();
+        var gpus = _metricsReader.GetAvailableGpus()
+            .Select(g => new GpuDisplayItem(g.Id, g.Name));
+
+        AvailableGpus = new ObservableCollection<GpuDisplayItem>(gpus);
+
+        _isLoadingSettings = true;
+        SelectedGpu = AvailableGpus.FirstOrDefault(g => g.Id == _settings.LastGpuId)
+                       ?? AvailableGpus.FirstOrDefault();
+        _isLoadingSettings = false;
+
+        Distro = RuntimeInformation.OSDescription;
+        CpuName = _metricsReader.GetCpu()?.Name ?? string.Empty;
+        RamName = _metricsReader.GetRam()?.Name ?? string.Empty;
 
         RefreshPorts();
 
@@ -40,12 +59,16 @@ public partial class MainViewModel : ViewModelBase
         {
             Interval = TimeSpan.FromMilliseconds(IntervalMs)
         };
-        _timer.Tick += (_, _) => Tick();
+        _timer.Tick += async (_, _) => await Tick();
     }
+
+    public string TraySummaryText =>
+    $"CPU: {CpuUsagePercent:0}% ({CpuTempCelsius:0}°C) | GPU: {GpuUsagePercent:0}% ({GpuTempCelsius:0}°C) | RAM: {RamUsedGb:0.0} GB";
 
     // ----- System info (read-only, bound to the "System Information" panel) -----
 
     [ObservableProperty] private double _cpuUsagePercent;
+    [ObservableProperty] private double _cpuTempCelsius;
     [ObservableProperty] private double _ramUsagePercent;
     [ObservableProperty] private double _ramUsedGb;
     [ObservableProperty] private double _ramTotalGb;
@@ -53,15 +76,20 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private double _gpuTempCelsius;
     [ObservableProperty] private string _distro = string.Empty;
 
-    // Rolling history for the sparkline graphs — each is capped at HistoryLength points
+    // ----- Hardware names shown as badges next to the CPU / RAM labels -----
+    // (GPU name is already available via SelectedGpu.Name, no extra prop needed)
+    [ObservableProperty] private string _cpuName = string.Empty;
+    [ObservableProperty] private string _ramName = string.Empty;
+
     public ObservableCollection<double> CpuHistory { get; } = new();
     public ObservableCollection<double> RamHistory { get; } = new();
     public ObservableCollection<double> GpuHistory { get; } = new();
 
     // ----- GPU selection -----
 
-    [ObservableProperty] private ObservableCollection<string> _availableGpus;
-    [ObservableProperty] private string? _selectedGpu;
+    // Changed from string to GpuDisplayItem
+    [ObservableProperty] private ObservableCollection<GpuDisplayItem> _availableGpus;
+    [ObservableProperty] private GpuDisplayItem? _selectedGpu;
 
     // ----- Serial connection -----
 
@@ -85,10 +113,17 @@ public partial class MainViewModel : ViewModelBase
     {
         var ports = _serialTransport.GetAvailablePorts();
         AvailablePorts = new ObservableCollection<string>(ports);
-        if (SelectedPort is null || !AvailablePorts.Contains(SelectedPort))
+
+        _isLoadingSettings = true;
+        if (_settings.LastPort != null && AvailablePorts.Contains(_settings.LastPort))
+        {
+            SelectedPort = _settings.LastPort;
+        }
+        else if (SelectedPort is null || !AvailablePorts.Contains(SelectedPort))
         {
             SelectedPort = AvailablePorts.FirstOrDefault();
         }
+        _isLoadingSettings = false;
     }
 
     [RelayCommand]
@@ -101,6 +136,7 @@ public partial class MainViewModel : ViewModelBase
             _serialTransport.Open(SelectedPort);
             IsConnected = true;
             ConnectionDetailText = $"Port {SelectedPort}";
+            PersistSettings();
         }
         catch (Exception ex)
         {
@@ -109,6 +145,32 @@ public partial class MainViewModel : ViewModelBase
         }
 
         OnPropertyChanged(nameof(ConnectionBadgeText));
+    }
+
+    // Auto-fires whenever SelectedPort or SelectedGpu changes (source-generated by CommunityToolkit)
+    partial void OnSelectedPortChanged(string? value) => PersistSettings();
+    partial void OnSelectedGpuChanged(GpuDisplayItem? value) => PersistSettings();
+
+    private void PersistSettings()
+    {
+        if (_isLoadingSettings) return; // don't write back the values we just loaded
+
+        _settings.LastPort = SelectedPort;
+        _settings.LastGpuId = SelectedGpu?.Id;
+        _settingsService.Save(_settings);
+    }
+
+    // Called once from the view after it opens, to auto-connect + auto-start
+    public async Task AutoStartAsync()
+    {
+        if (_settings.AutoConnect && SelectedPort != null)
+        {
+            Connect();
+            if (IsConnected && _settings.AutoStartMonitoring && !IsMonitoring)
+            {
+                ToggleMonitoring();
+            }
+        }
     }
 
     [RelayCommand]
@@ -139,35 +201,52 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(MonitoringButtonText));
     }
 
-    private void Tick()
+    private async Task Tick()
     {
-        var snapshot = _systemInfoService.GetSnapshot();
+        string? currentGpuId = SelectedGpu?.Id;
+        bool isCurrentlyConnected = IsConnected;
 
-        CpuUsagePercent = snapshot.CpuUsagePercent;
-        RamUsagePercent = snapshot.RamUsagePercent;
-        RamUsedGb = snapshot.RamUsedGb;
-        RamTotalGb = snapshot.RamTotalGb;
-        Distro = snapshot.OsDescription;
-
-        if (SelectedGpu is not null)
+        var (cpu, ram, gpu) = await Task.Run(() =>
         {
-            GpuUsagePercent = _gpuService.GetUsage(SelectedGpu);
-            GpuTempCelsius = _gpuService.GetTemperature(SelectedGpu);
+            var c = _metricsReader.GetCpu();
+            var r = _metricsReader.GetRam();
+            var g = currentGpuId != null ? _metricsReader.GetGpu(currentGpuId) : null;
+
+            return (c, r, g);
+        });
+
+        CpuUsagePercent = cpu?.Metrics?.Usage ?? 0;
+        CpuTempCelsius = cpu?.Metrics?.Temp ?? 0;
+
+        if (ram?.Metrics != null)
+        {
+            RamUsagePercent = ram.Metrics.Usage;
+            RamTotalGb = Math.Round(ram.Metrics.TotalGb / 1024.0 / 1024.0 / 1024.0, 1);
+            RamUsedGb = Math.Round(ram.Metrics.UsedGb / 1024.0 / 1024.0 / 1024.0, 1);
+        }
+
+        if (gpu != null)
+        {
+            GpuUsagePercent = gpu.Metrics?.Usage ?? 0;
+            GpuTempCelsius = gpu.Metrics?.Temp ?? 0;
         }
 
         PushHistory(CpuHistory, CpuUsagePercent);
         PushHistory(RamHistory, RamUsagePercent);
         PushHistory(GpuHistory, GpuUsagePercent);
+        OnPropertyChanged(nameof(TraySummaryText));
 
-        if (IsConnected)
+        if (isCurrentlyConnected)
         {
-            // TODO: match this to whatever framing your ESP32 firmware/LVGL code expects.
-            // This is a simple pipe-delimited line as a starting point.
-            var line = $"CPU:{CpuUsagePercent:0}|RAM:{RamUsagePercent:0}|GPU:{GpuUsagePercent:0}|GPUT:{GpuTempCelsius:0}";
+            int hour = DateTime.Now.Hour;
+            int minute = DateTime.Now.Minute;
+            int second = DateTime.Now.Second;
+
+            string payload = $"{cpu.Metrics.Usage},{gpu.Metrics.Usage},{ram.Metrics.Usage},{cpu.Metrics.Temp},{hour},{minute},{second}";
 
             try
             {
-                _serialTransport.WriteLine(line);
+                _serialTransport.WriteLine(payload);
             }
             catch (Exception ex)
             {
@@ -183,12 +262,6 @@ public partial class MainViewModel : ViewModelBase
         history.Add(value);
         while (history.Count > HistoryLength)
             history.RemoveAt(0);
-    }
-
-    partial void OnSelectedGpuChanged(string? value)
-    {
-        // Selecting a different GPU in the dropdown immediately affects what gets sent
-        // to the ESP32 on the next tick — no extra wiring needed.
     }
 
     partial void OnIntervalMsChanged(int value)

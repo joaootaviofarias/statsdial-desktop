@@ -1,6 +1,6 @@
 using System.IO.Ports;
 
-namespace PcSystemMonitorLcd.Cli;
+namespace StatsDial.Cli;
 
 public sealed class SerialSender : IDisposable
 {

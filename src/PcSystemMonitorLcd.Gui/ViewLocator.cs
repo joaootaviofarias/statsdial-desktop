@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using PcSystemMonitorLcd.Gui.ViewModels;
+using StatsDial.Desktop.ViewModels;
 
-namespace PcSystemMonitorLcd.Gui;
+namespace StatsDial.Desktop;
 
 /// <summary>
 /// Given a view model, returns the corresponding view if possible.

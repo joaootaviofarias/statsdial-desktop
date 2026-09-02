@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace PcSystemMonitorLcd.Gui;
+namespace StatsDial.Desktop;
 
 sealed class Program
 {

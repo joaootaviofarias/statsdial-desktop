@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace PcSystemMonitorLcd.Gui.Services;
+namespace StatsDial.Desktop.Services;
 
 public interface ISerialTransportService : IDisposable
 {
@@ -29,8 +29,6 @@ public sealed class SerialTransportService : ISerialTransportService
             return SerialPort.GetPortNames().OrderBy(p => p).ToArray();
         }
 
-        // On Linux, SerialPort.GetPortNames() is unreliable, so scan /dev directly
-        // for the typical USB-serial device names an ESP32 shows up as.
         var candidates = new List<string>();
         foreach (var pattern in new[] { "ttyUSB*", "ttyACM*" })
         {
