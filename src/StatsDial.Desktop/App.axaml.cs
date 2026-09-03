@@ -22,11 +22,7 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
 
         string assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
-        string orbitronUri = $"avares://{assemblyName}/Assets/Fonts#Orbitron";
-        string rajdhaniUri = $"avares://{assemblyName}/Assets/Fonts#Rajdhani";
-
-        Resources["DisplayFont"] = new FontFamily(orbitronUri);
-        Resources["BodyFont"] = new FontFamily(rajdhaniUri);
+        Resources["BodyFont"] = new FontFamily($"avares://{assemblyName}/Assets/Fonts#Exo 2");
     }
 
     public override void OnFrameworkInitializationCompleted()

@@ -33,7 +33,7 @@
 				<!-- Left: Icon & App Name -->
 				<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Spacing="8" IsHitTestVisible="False">
 					<Image Source="/Assets/icon.ico" Width="18" Height="18"/>
-					<TextBlock Text="Stats Dial" FontWeight="SemiBold" VerticalAlignment="Center" />
+					<TextBlock Text="Stats Dial" FontFamily="{StaticResource BodyFontSemiBold}" VerticalAlignment="Center" />
 				</StackPanel>
 
 				<!-- Right: Close Button -->

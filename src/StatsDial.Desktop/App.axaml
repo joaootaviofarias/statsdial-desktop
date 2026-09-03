@@ -14,9 +14,7 @@
     </Application.Styles>
 
     <Application.Resources>
-        <!-- Fonts: Orbitron for display/section titles (cyberpunk), Rajdhani for body (Light/Bold pairing) -->
-		<FontFamily x:Key="DisplayFont">avares://StatsDial.Desktop/Assets/Fonts#Orbitron</FontFamily>
-		<FontFamily x:Key="BodyFont">avares://StatsDial.Desktop/Assets/Fonts#Rajdhani</FontFamily>
+		<FontFamily x:Key="BodyFont">avares://StatsDial/Assets/Fonts#Exo 2</FontFamily>
 
         <!-- Palette -->
         <Color x:Key="AppBackgroundColor">#050608</Color>
@@ -42,122 +40,125 @@
         <SolidColorBrush x:Key="AppDangerBrush" Color="{StaticResource AppDangerColor}" />
     </Application.Resources>
 
-    <Application.Styles>
-        <Style Selector="Window">
-            <Setter Property="Background" Value="{StaticResource AppBackgroundBrush}" />
-            <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
-        </Style>
+	<Application.Styles>
+		<Style Selector="Window">
+			<Setter Property="Background" Value="{StaticResource AppBackgroundBrush}" />
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+		</Style>
 
-        <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource AppTextPrimaryBrush}" />
-            <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
-            <Setter Property="FontWeight" Value="Light" />
-        </Style>
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{StaticResource AppTextPrimaryBrush}" />
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+			<Setter Property="FontWeight" Value="Light" />
+		</Style>
 
-        <Style Selector="TextBlock.muted">
-            <Setter Property="Foreground" Value="{StaticResource AppTextMutedBrush}" />
-            <Setter Property="FontSize" Value="12" />
-        </Style>
+		<Style Selector="TextBlock.muted">
+			<Setter Property="Foreground" Value="{StaticResource AppTextMutedBrush}" />
+			<Setter Property="FontSize" Value="12" />
+		</Style>
 
-        <!-- Small caps-style label above/left of a metric, e.g. "CPU" -->
-        <Style Selector="TextBlock.metric-label">
-            <Setter Property="Foreground" Value="{StaticResource AppTextMutedBrush}" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="LetterSpacing" Value="2" />
-        </Style>
+		<Style Selector="TextBlock.metric-label">
+			<Setter Property="Foreground" Value="{StaticResource AppTextMutedBrush}" />
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="LetterSpacing" Value="2" />
+		</Style>
 
-        <Style Selector="TextBlock.value">
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="20" />
-        </Style>
+		<Style Selector="TextBlock.value">
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+			<Setter Property="FontWeight" Value="ExtraBold" />
+			<Setter Property="FontSize" Value="20" />
+		</Style>
 
-        <Style Selector="TextBlock.section-title">
-            <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="LetterSpacing" Value="2" />
-            <Setter Property="Foreground" Value="{StaticResource AppAccentBrush}" />
-        </Style>
+		<Style Selector="TextBlock.section-title">
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+			<Setter Property="FontWeight" Value="ExtraBold" />
+			<Setter Property="FontSize" Value="13" />
+			<Setter Property="LetterSpacing" Value="2" />
+			<Setter Property="Foreground" Value="{StaticResource AppAccentBrush}" />
+		</Style>
 
-        <Style Selector="Border.panel">
-            <Setter Property="Background" Value="{StaticResource AppPanelBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AppPanelBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="18" />
-            <Setter Property="Padding" Value="20" />
-            <Setter Property="BoxShadow" Value="0 6 20 -4 #99000000" />
-        </Style>
+		<Style Selector="Border.panel">
+			<Setter Property="Background" Value="{StaticResource AppPanelBrush}" />
+			<Setter Property="BorderBrush" Value="{StaticResource AppPanelBorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="18" />
+			<Setter Property="Padding" Value="20" />
+			<Setter Property="BoxShadow" Value="0 6 20 -4 #99000000" />
+		</Style>
 
-        <Style Selector="ProgressBar">
-            <Setter Property="Background" Value="#161A20" />
-            <Setter Property="Foreground" Value="{StaticResource AppAccentBrush}" />
-            <Setter Property="Height" Value="6" />
-            <Setter Property="CornerRadius" Value="3" />
-        </Style>
+		<Style Selector="ProgressBar">
+			<Setter Property="Background" Value="#161A20" />
+			<Setter Property="Foreground" Value="{StaticResource AppAccentBrush}" />
+			<Setter Property="Height" Value="6" />
+			<Setter Property="CornerRadius" Value="3" />
+		</Style>
 
-        <Style Selector="ComboBox">
-            <Setter Property="Background" Value="#12151B" />
-            <Setter Property="Foreground" Value="{StaticResource AppTextPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AppPanelBorderBrush}" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="10,6" />
-            <Setter Property="FontWeight" Value="Medium" />
-        </Style>
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="#12151B" />
+			<Setter Property="Foreground" Value="{StaticResource AppTextPrimaryBrush}" />
+			<Setter Property="BorderBrush" Value="{StaticResource AppPanelBorderBrush}" />
+			<Setter Property="CornerRadius" Value="8" />
+			<Setter Property="Padding" Value="10,6" />
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+			<Setter Property="FontWeight" Value="Medium" />
+		</Style>
 
-        <Style Selector="Button">
-            <Setter Property="Background" Value="#12151B" />
-            <Setter Property="Foreground" Value="{StaticResource AppTextPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AppPanelBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="14,8" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
+		<Style Selector="Button">
+			<Setter Property="Background" Value="#12151B" />
+			<Setter Property="Foreground" Value="{StaticResource AppTextPrimaryBrush}" />
+			<Setter Property="BorderBrush" Value="{StaticResource AppPanelBorderBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="8" />
+			<Setter Property="Padding" Value="14,8" />
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+			<Setter Property="FontWeight" Value="SemiBold" />
+		</Style>
 
-        <Style Selector="Button.accent">
-            <Setter Property="Background" Value="{StaticResource AppAccentDimBrush}" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderThickness" Value="0" />
-        </Style>
+		<Style Selector="Button.accent">
+			<Setter Property="Background" Value="{StaticResource AppAccentDimBrush}" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="BorderThickness" Value="0" />
+		</Style>
 
-        <Style Selector="Button:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#1B2028" />
-        </Style>
+		<Style Selector="Button:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="#1B2028" />
+		</Style>
 
-        <!-- Badges / chips -->
-        <Style Selector="Border.badge">
+		<Style Selector="Border.badge">
 			<Setter Property="CornerRadius" Value="999" />
 			<Setter Property="Padding" Value="10,3" />
 			<Setter Property="HorizontalAlignment" Value="Left" />
 			<Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
+		</Style>
 
-        <Style Selector="Border.badge TextBlock">
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontSize" Value="10.5" />
-            <Setter Property="LetterSpacing" Value="1.5" />
-        </Style>
+		<Style Selector="Border.badge TextBlock">
+			<Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="FontSize" Value="10.5" />
+			<Setter Property="LetterSpacing" Value="1.5" />
+		</Style>
 
-        <Style Selector="Border.badge-accent">
-            <Setter Property="Background" Value="#1A2E2B" />
-        </Style>
-        <Style Selector="Border.badge-accent TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource AppAccentBrush}" />
-        </Style>
+		<Style Selector="Border.badge-accent">
+			<Setter Property="Background" Value="#1A2E2B" />
+		</Style>
+		<Style Selector="Border.badge-accent TextBlock">
+			<Setter Property="Foreground" Value="{StaticResource AppAccentBrush}" />
+		</Style>
 
-        <Style Selector="Border.badge-danger">
-            <Setter Property="Background" Value="#2E1620" />
-        </Style>
-        <Style Selector="Border.badge-danger TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource AppDangerBrush}" />
-        </Style>
+		<Style Selector="Border.badge-danger">
+			<Setter Property="Background" Value="#2E1620" />
+		</Style>
+		<Style Selector="Border.badge-danger TextBlock">
+			<Setter Property="Foreground" Value="{StaticResource AppDangerBrush}" />
+		</Style>
 
-        <Style Selector="Border.badge-neutral">
-            <Setter Property="Background" Value="#181B21" />
-        </Style>
-        <Style Selector="Border.badge-neutral TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource AppTextMutedBrush}" />
-        </Style>
-    </Application.Styles>
+		<Style Selector="Border.badge-neutral">
+			<Setter Property="Background" Value="#181B21" />
+		</Style>
+		<Style Selector="Border.badge-neutral TextBlock">
+			<Setter Property="Foreground" Value="{StaticResource AppTextMutedBrush}" />
+		</Style>
+	</Application.Styles>
 </Application>
