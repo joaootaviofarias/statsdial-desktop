@@ -1,8 +1,8 @@
-namespace StatsDial.Cli;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using StatsDial.Core;
+
+namespace StatsDial.Cli;
 
 public class MetricsWorker : BackgroundService
 {

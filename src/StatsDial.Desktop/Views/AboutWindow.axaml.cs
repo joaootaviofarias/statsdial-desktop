@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Reflection;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
@@ -9,6 +10,8 @@ public partial class AboutWindow : Window
     public AboutWindow()
     {
         InitializeComponent();
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        VersionText.Text = version is null ? "Version dev" : $"Version {version.Major}.{version.Minor}.{version.Build}";
     }
 
     // Allows dragging via the custom title bar

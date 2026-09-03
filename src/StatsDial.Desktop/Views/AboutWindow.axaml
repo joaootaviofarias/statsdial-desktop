@@ -58,9 +58,9 @@
                                FontSize="20"
                                HorizontalAlignment="Center" />
 
-					<TextBlock Text="Version 1.0.0"
-                               Classes="muted"
-                               HorizontalAlignment="Center" />
+					<TextBlock x:Name="VersionText"
+							   Classes="muted"
+							   HorizontalAlignment="Center" />
 
 					<TextBlock Text="Created by Joao Otavio"
                                Foreground="{StaticResource AppTextPrimaryBrush}"
