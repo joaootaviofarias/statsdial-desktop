@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
@@ -9,7 +9,7 @@
 		<Product>Stats Dial</Product>
 		<AssemblyTitle>Stats Dial</AssemblyTitle>
 		<AssemblyName>StatsDial</AssemblyName>
-		<Version>1.0.1</Version>
+		<Version>1.0.0</Version>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<FileVersion>1.0.0.0</FileVersion>
 		<InformationalVersion>1.0.0</InformationalVersion>
