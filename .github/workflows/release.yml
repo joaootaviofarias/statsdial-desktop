@@ -15,7 +15,7 @@ jobs:
     runs-on: windows-latest
     env:
       VERSION: ${{ github.event.inputs.version }}
-      CSPROJ: StatsDial.Desktop/StatsDial.Desktop.csproj
+      CSPROJ: src/StatsDial.Desktop/StatsDial.Desktop.csproj
 
     steps:
       - uses: actions/checkout@v4
